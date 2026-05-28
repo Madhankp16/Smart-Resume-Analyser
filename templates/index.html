@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Resume Analyser | AI Powered</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg-grid"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- Header -->
+<header class="header">
+  <div class="logo">
+    <span class="logo-icon">⚡</span>
+    <span class="logo-text">ResumeAI</span>
+  </div>
+  <div class="header-badge">AI Powered Analysis</div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-tag">✦ Smart Resume Analyser</div>
+  <h1 class="hero-title">Analyse Your Resume<br><span class="gradient-text">With AI Intelligence</span></h1>
+  <p class="hero-sub">Upload your resume and get instant AI-powered feedback, skill gap analysis, and personalized recommendations.</p>
+</section>
+
+<!-- Upload Section -->
+<main class="main-container">
+  <div class="upload-card" id="uploadCard">
+    <form id="resumeForm" enctype="multipart/form-data">
+
+      <!-- Drop Zone -->
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-icon">📄</div>
+        <div class="drop-title">Drop your Resume here</div>
+        <div class="drop-sub">PDF, DOCX or TXT · Max 5MB</div>
+        <input type="file" id="fileInput" name="resume" accept=".pdf,.docx,.txt" hidden>
+        <button type="button" class="browse-btn" onclick="document.getElementById('fileInput').click()">Browse File</button>
+        <div class="file-name" id="fileName"></div>
+      </div>
+
+      <!-- Job Role -->
+      <div class="role-section">
+        <label class="role-label">🎯 Target Job Role <span class="optional">(optional)</span></label>
+        <div class="role-grid">
+          <select name="job_role" id="jobRole" class="role-select">
+            <option value="">Auto Detect Role</option>
+            <option value="software engineer">Software Engineer</option>
+            <option value="data scientist">Data Scientist</option>
+            <option value="web developer">Web Developer</option>
+            <option value="full stack developer">Full Stack Developer</option>
+            <option value="frontend developer">Frontend Developer</option>
+            <option value="backend developer">Backend Developer</option>
+            <option value="devops engineer">DevOps Engineer</option>
+            <option value="ai/ml engineer">AI/ML Engineer</option>
+            <option value="data analyst">Data Analyst</option>
+            <option value="mobile developer">Mobile Developer</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="analyse-btn" id="analyseBtn">
+        <span class="btn-text">⚡ Analyse Resume</span>
+        <span class="btn-loader" hidden>
+          <span class="spinner"></span> Analysing...
+        </span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Results Section -->
+  <div id="results" class="results hidden">
+
+    <!-- Score Hero -->
+    <div class="score-hero">
+      <div class="score-circle-wrap">
+        <svg class="score-ring" viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="50"/>
+          <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="50"
+            stroke-dasharray="314" stroke-dashoffset="314"/>
+        </svg>
+        <div class="score-inner">
+          <div class="score-num" id="scoreNum">0</div>
+          <div class="score-label">/ 100</div>
+        </div>
+      </div>
+      <div class="score-info">
+        <div class="grade-badge" id="gradeBadge">A+</div>
+        <div class="grade-label" id="gradeLabel">Excellent</div>
+        <div class="candidate-name" id="candidateName">Name</div>
+        <div class="contact-row">
+          <span id="emailVal">📧 —</span>
+          <span id="phoneVal">📞 —</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon">🎓</div>
+        <div class="stat-val" id="eduVal">—</div>
+        <div class="stat-lbl">Education</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💼</div>
+        <div class="stat-val" id="expVal">—</div>
+        <div class="stat-lbl">Experience</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-val" id="cgpaVal">—</div>
+        <div class="stat-lbl">CGPA/GPA</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📝</div>
+        <div class="stat-val" id="wordVal">—</div>
+        <div class="stat-lbl">Word Count</div>
+      </div>
+    </div>
+
+    <!-- Score Breakdown -->
+    <div class="section-card">
+      <h3 class="section-title">📊 Score Breakdown</h3>
+      <div id="breakdownBars" class="breakdown-bars"></div>
+    </div>
+
+    <!-- Role Match -->
+    <div class="section-card">
+      <h3 class="section-title">🎯 Role Match: <span id="detectedRole" class="highlight-text">—</span></h3>
+      <div class="role-match-bar-wrap">
+        <div class="role-match-bar">
+          <div class="role-match-fill" id="roleMatchFill" style="width:0%"></div>
+        </div>
+        <span class="role-match-pct" id="roleMatchPct">0%</span>
+      </div>
+      <div class="skills-two-col">
+        <div>
+          <div class="skills-sub-title">✅ Matched Skills</div>
+          <div class="tags-wrap" id="matchedSkills"></div>
+        </div>
+        <div>
+          <div class="skills-sub-title">❌ Missing Skills</div>
+          <div class="tags-wrap" id="missingSkills"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Technical Skills -->
+    <div class="section-card">
+      <h3 class="section-title">🛠️ Technical Skills Found</h3>
+      <div class="tags-wrap" id="techSkills"></div>
+    </div>
+
+    <!-- Soft Skills -->
+    <div class="section-card">
+      <h3 class="section-title">🤝 Soft Skills Found</h3>
+      <div class="tags-wrap" id="softSkills"></div>
+    </div>
+
+    <!-- Sections Detected -->
+    <div class="section-card">
+      <h3 class="section-title">📋 Resume Sections Detected</h3>
+      <div class="tags-wrap" id="sectionsFound"></div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="section-card recommendations-card">
+      <h3 class="section-title">💡 AI Recommendations</h3>
+      <ul class="reco-list" id="recoList"></ul>
+    </div>
+
+    <!-- Analyse Again -->
+    <button class="again-btn" onclick="resetForm()">🔄 Analyse Another Resume</button>
+  </div>
+
+  <!-- Error -->
+  <div id="errorBox" class="error-box hidden">
+    <span id="errorMsg">Something went wrong.</span>
+  </div>
+</main>
+
+<footer class="footer">Made with ❤️ · Smart Resume Analyser · AI Powered</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
